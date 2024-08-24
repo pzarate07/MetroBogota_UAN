@@ -1,0 +1,965 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="data/1ra_linea_metro_1.js"></script>
+        <script src="data/2da_linea_metro_2.js"></script>
+        <script src="data/Adaptacion_Cambio_Climatico_3.js"></script>
+        <script src="data/Cuenca_Alta_Rio_Bogota_4.js"></script>
+        <script src="data/Estaciones_1ra_linea_metro_5.js"></script>
+        <script src="data/Estaciones_2da_linea_metro_6.js"></script>
+        <script src="data/limite_intervencion_1ra_linea_metro_7.js"></script>
+        <script src="data/Viaducto_1ra_linea_metro_8.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[4.243998622489681,-74.87134760425917],[5.2724606178567495,-73.19609437120191]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_ESRIGraylight_0');
+        map.getPane('pane_ESRIGraylight_0').style.zIndex = 400;
+        var layer_ESRIGraylight_0 = L.tileLayer('http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            pane: 'pane_ESRIGraylight_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_ESRIGraylight_0;
+        map.addLayer(layer_ESRIGraylight_0);
+        function pop_1ra_linea_metro_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['qc_id'] !== null ? autolinker.link(feature.properties['qc_id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['objectid'] !== null ? autolinker.link(feature.properties['objectid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nombre'] !== null ? autolinker.link(feature.properties['nombre'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_1ra_linea_metro_1_0() {
+            return {
+                pane: 'pane_1ra_linea_metro_1',
+                opacity: 1,
+                color: 'rgba(51,160,44,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_1ra_linea_metro_1');
+        map.getPane('pane_1ra_linea_metro_1').style.zIndex = 401;
+        map.getPane('pane_1ra_linea_metro_1').style['mix-blend-mode'] = 'normal';
+        var layer_1ra_linea_metro_1 = new L.geoJson(json_1ra_linea_metro_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_1ra_linea_metro_1',
+            layerName: 'layer_1ra_linea_metro_1',
+            pane: 'pane_1ra_linea_metro_1',
+            onEachFeature: pop_1ra_linea_metro_1,
+            style: style_1ra_linea_metro_1_0,
+        });
+        bounds_group.addLayer(layer_1ra_linea_metro_1);
+        map.addLayer(layer_1ra_linea_metro_1);
+        function pop_2da_linea_metro_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['qc_id'] !== null ? autolinker.link(feature.properties['qc_id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['objectid'] !== null ? autolinker.link(feature.properties['objectid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nombre'] !== null ? autolinker.link(feature.properties['nombre'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_2da_linea_metro_2_0() {
+            return {
+                pane: 'pane_2da_linea_metro_2',
+                opacity: 1,
+                color: 'rgba(215,25,28,1.0)',
+                dashArray: '',
+                lineCap: 'round',
+                lineJoin: 'round',
+                weight: 6.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_2da_linea_metro_2');
+        map.getPane('pane_2da_linea_metro_2').style.zIndex = 402;
+        map.getPane('pane_2da_linea_metro_2').style['mix-blend-mode'] = 'normal';
+        var layer_2da_linea_metro_2 = new L.geoJson(json_2da_linea_metro_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_2da_linea_metro_2',
+            layerName: 'layer_2da_linea_metro_2',
+            pane: 'pane_2da_linea_metro_2',
+            onEachFeature: pop_2da_linea_metro_2,
+            style: style_2da_linea_metro_2_0,
+        });
+        bounds_group.addLayer(layer_2da_linea_metro_2);
+        map.addLayer(layer_2da_linea_metro_2);
+        function pop_Adaptacion_Cambio_Climatico_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['qc_id'] !== null ? autolinker.link(feature.properties['qc_id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['bnfc'] !== null ? autolinker.link(feature.properties['bnfc'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fase'] !== null ? autolinker.link(feature.properties['fase'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['item'] !== null ? autolinker.link(feature.properties['item'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['localidad'] !== null ? autolinker.link(feature.properties['localidad'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['medida'] !== null ? autolinker.link(feature.properties['medida'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Adaptacion_Cambio_Climatico_3_0(feature) {
+            switch(String(feature.properties['medida'])) {
+                case 'Banco atrapaniebla':
+                    return {
+                pane: 'pane_Adaptacion_Cambio_Climatico_3',
+                radius: 10.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(230,97,1,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Ecohuerta':
+                    return {
+                pane: 'pane_Adaptacion_Cambio_Climatico_3',
+                radius: 10.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(245,155,66,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Huerta urbana agroecológica':
+                    return {
+                pane: 'pane_Adaptacion_Cambio_Climatico_3',
+                radius: 10.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(251,205,148,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Limnímetro':
+                    return {
+                pane: 'pane_Adaptacion_Cambio_Climatico_3',
+                radius: 10.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(247,247,247,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Micro-túnel agrícola':
+                    return {
+                pane: 'pane_Adaptacion_Cambio_Climatico_3',
+                radius: 10.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(201,196,222,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Pluviómetro':
+                    return {
+                pane: 'pane_Adaptacion_Cambio_Climatico_3',
+                radius: 10.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(150,134,191,1.0)',
+                interactive: true,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_Adaptacion_Cambio_Climatico_3',
+                radius: 10.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(94,60,153,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Adaptacion_Cambio_Climatico_3');
+        map.getPane('pane_Adaptacion_Cambio_Climatico_3').style.zIndex = 403;
+        map.getPane('pane_Adaptacion_Cambio_Climatico_3').style['mix-blend-mode'] = 'normal';
+        var layer_Adaptacion_Cambio_Climatico_3 = new L.geoJson(json_Adaptacion_Cambio_Climatico_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Adaptacion_Cambio_Climatico_3',
+            layerName: 'layer_Adaptacion_Cambio_Climatico_3',
+            pane: 'pane_Adaptacion_Cambio_Climatico_3',
+            onEachFeature: pop_Adaptacion_Cambio_Climatico_3,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Adaptacion_Cambio_Climatico_3_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Adaptacion_Cambio_Climatico_3);
+        map.addLayer(layer_Adaptacion_Cambio_Climatico_3);
+        function pop_Cuenca_Alta_Rio_Bogota_4(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['qc_id'] !== null ? autolinker.link(feature.properties['qc_id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['objectid'] !== null ? autolinker.link(feature.properties['objectid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['area_ha'] !== null ? autolinker.link(feature.properties['area_ha'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['tipo'] !== null ? autolinker.link(feature.properties['tipo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nombre'] !== null ? autolinker.link(feature.properties['nombre'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['acto_admin'] !== null ? autolinker.link(feature.properties['acto_admin'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['orig_fid'] !== null ? autolinker.link(feature.properties['orig_fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">categoria</th>\
+                        <td>' + (feature.properties['categoria'] !== null ? autolinker.link(feature.properties['categoria'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['shape_leng'] !== null ? autolinker.link(feature.properties['shape_leng'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['shape_area'] !== null ? autolinker.link(feature.properties['shape_area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Cuenca_Alta_Rio_Bogota_4_0(feature) {
+            if (feature.properties['shape_area'] >= 0.000000 && feature.properties['shape_area'] <= 0.000037 ) {
+                return {
+                pane: 'pane_Cuenca_Alta_Rio_Bogota_4',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,25,28,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['shape_area'] >= 0.000037 && feature.properties['shape_area'] <= 0.000156 ) {
+                return {
+                pane: 'pane_Cuenca_Alta_Rio_Bogota_4',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,174,97,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['shape_area'] >= 0.000156 && feature.properties['shape_area'] <= 0.000481 ) {
+                return {
+                pane: 'pane_Cuenca_Alta_Rio_Bogota_4',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,191,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['shape_area'] >= 0.000481 && feature.properties['shape_area'] <= 0.002039 ) {
+                return {
+                pane: 'pane_Cuenca_Alta_Rio_Bogota_4',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(171,221,164,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['shape_area'] >= 0.002039 && feature.properties['shape_area'] <= 0.020943 ) {
+                return {
+                pane: 'pane_Cuenca_Alta_Rio_Bogota_4',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(43,131,186,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Cuenca_Alta_Rio_Bogota_4');
+        map.getPane('pane_Cuenca_Alta_Rio_Bogota_4').style.zIndex = 404;
+        map.getPane('pane_Cuenca_Alta_Rio_Bogota_4').style['mix-blend-mode'] = 'normal';
+        var layer_Cuenca_Alta_Rio_Bogota_4 = new L.geoJson(json_Cuenca_Alta_Rio_Bogota_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Cuenca_Alta_Rio_Bogota_4',
+            layerName: 'layer_Cuenca_Alta_Rio_Bogota_4',
+            pane: 'pane_Cuenca_Alta_Rio_Bogota_4',
+            onEachFeature: pop_Cuenca_Alta_Rio_Bogota_4,
+            style: style_Cuenca_Alta_Rio_Bogota_4_0,
+        });
+        bounds_group.addLayer(layer_Cuenca_Alta_Rio_Bogota_4);
+        map.addLayer(layer_Cuenca_Alta_Rio_Bogota_4);
+        function pop_Estaciones_1ra_linea_metro_5(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['qc_id'] !== null ? autolinker.link(feature.properties['qc_id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['objectid'] !== null ? autolinker.link(feature.properties['objectid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nombre_com'] !== null ? autolinker.link(feature.properties['nombre_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['número'] !== null ? autolinker.link(feature.properties['número'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nombre'] !== null ? autolinker.link(feature.properties['nombre'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['tipo'] !== null ? autolinker.link(feature.properties['tipo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Estaciones_1ra_linea_metro_5_0() {
+            return {
+                pane: 'pane_Estaciones_1ra_linea_metro_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,127,0,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Estaciones_1ra_linea_metro_5');
+        map.getPane('pane_Estaciones_1ra_linea_metro_5').style.zIndex = 405;
+        map.getPane('pane_Estaciones_1ra_linea_metro_5').style['mix-blend-mode'] = 'normal';
+        var layer_Estaciones_1ra_linea_metro_5 = new L.geoJson(json_Estaciones_1ra_linea_metro_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Estaciones_1ra_linea_metro_5',
+            layerName: 'layer_Estaciones_1ra_linea_metro_5',
+            pane: 'pane_Estaciones_1ra_linea_metro_5',
+            onEachFeature: pop_Estaciones_1ra_linea_metro_5,
+            style: style_Estaciones_1ra_linea_metro_5_0,
+        });
+        bounds_group.addLayer(layer_Estaciones_1ra_linea_metro_5);
+        map.addLayer(layer_Estaciones_1ra_linea_metro_5);
+        function pop_Estaciones_2da_linea_metro_6(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['qc_id'] !== null ? autolinker.link(feature.properties['qc_id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['objectid'] !== null ? autolinker.link(feature.properties['objectid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['numero'] !== null ? autolinker.link(feature.properties['numero'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nombre'] !== null ? autolinker.link(feature.properties['nombre'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['tipo'] !== null ? autolinker.link(feature.properties['tipo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Estaciones_2da_linea_metro_6_0() {
+            return {
+                pane: 'pane_Estaciones_2da_linea_metro_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(31,120,180,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Estaciones_2da_linea_metro_6');
+        map.getPane('pane_Estaciones_2da_linea_metro_6').style.zIndex = 406;
+        map.getPane('pane_Estaciones_2da_linea_metro_6').style['mix-blend-mode'] = 'normal';
+        var layer_Estaciones_2da_linea_metro_6 = new L.geoJson(json_Estaciones_2da_linea_metro_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Estaciones_2da_linea_metro_6',
+            layerName: 'layer_Estaciones_2da_linea_metro_6',
+            pane: 'pane_Estaciones_2da_linea_metro_6',
+            onEachFeature: pop_Estaciones_2da_linea_metro_6,
+            style: style_Estaciones_2da_linea_metro_6_0,
+        });
+        bounds_group.addLayer(layer_Estaciones_2da_linea_metro_6);
+        map.addLayer(layer_Estaciones_2da_linea_metro_6);
+        function pop_limite_intervencion_1ra_linea_metro_7(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['qc_id'] !== null ? autolinker.link(feature.properties['qc_id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['objectid'] !== null ? autolinker.link(feature.properties['objectid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nombre'] !== null ? autolinker.link(feature.properties['nombre'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['shape.area'] !== null ? autolinker.link(feature.properties['shape.area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['shape.len'] !== null ? autolinker.link(feature.properties['shape.len'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_limite_intervencion_1ra_linea_metro_7_0() {
+            return {
+                pane: 'pane_limite_intervencion_1ra_linea_metro_7',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(251,154,153,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_limite_intervencion_1ra_linea_metro_7');
+        map.getPane('pane_limite_intervencion_1ra_linea_metro_7').style.zIndex = 407;
+        map.getPane('pane_limite_intervencion_1ra_linea_metro_7').style['mix-blend-mode'] = 'normal';
+        var layer_limite_intervencion_1ra_linea_metro_7 = new L.geoJson(json_limite_intervencion_1ra_linea_metro_7, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_limite_intervencion_1ra_linea_metro_7',
+            layerName: 'layer_limite_intervencion_1ra_linea_metro_7',
+            pane: 'pane_limite_intervencion_1ra_linea_metro_7',
+            onEachFeature: pop_limite_intervencion_1ra_linea_metro_7,
+            style: style_limite_intervencion_1ra_linea_metro_7_0,
+        });
+        bounds_group.addLayer(layer_limite_intervencion_1ra_linea_metro_7);
+        map.addLayer(layer_limite_intervencion_1ra_linea_metro_7);
+        function pop_Viaducto_1ra_linea_metro_8(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['qc_id'] !== null ? autolinker.link(feature.properties['qc_id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['objectid'] !== null ? autolinker.link(feature.properties['objectid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nombre'] !== null ? autolinker.link(feature.properties['nombre'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Viaducto_1ra_linea_metro_8_0() {
+            return {
+                pane: 'pane_Viaducto_1ra_linea_metro_8',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(178,223,138,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Viaducto_1ra_linea_metro_8');
+        map.getPane('pane_Viaducto_1ra_linea_metro_8').style.zIndex = 408;
+        map.getPane('pane_Viaducto_1ra_linea_metro_8').style['mix-blend-mode'] = 'normal';
+        var layer_Viaducto_1ra_linea_metro_8 = new L.geoJson(json_Viaducto_1ra_linea_metro_8, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Viaducto_1ra_linea_metro_8',
+            layerName: 'layer_Viaducto_1ra_linea_metro_8',
+            pane: 'pane_Viaducto_1ra_linea_metro_8',
+            onEachFeature: pop_Viaducto_1ra_linea_metro_8,
+            style: style_Viaducto_1ra_linea_metro_8_0,
+        });
+        bounds_group.addLayer(layer_Viaducto_1ra_linea_metro_8);
+        map.addLayer(layer_Viaducto_1ra_linea_metro_8);
+        var baseMaps = {};
+        var overlaysTree = [
+            {label: '<img src="legend/Viaducto_1ra_linea_metro_8.png" /> Viaducto_1ra_linea_metro', layer: layer_Viaducto_1ra_linea_metro_8},
+            {label: '<img src="legend/limite_intervencion_1ra_linea_metro_7.png" /> limite_intervencion_1ra_linea_metro', layer: layer_limite_intervencion_1ra_linea_metro_7},
+            {label: '<img src="legend/Estaciones_2da_linea_metro_6.png" /> Estaciones_2da_linea_metro', layer: layer_Estaciones_2da_linea_metro_6},
+            {label: '<img src="legend/Estaciones_1ra_linea_metro_5.png" /> Estaciones_1ra_linea_metro', layer: layer_Estaciones_1ra_linea_metro_5},
+            {label: 'Cuenca_Alta_Rio_Bogota<br /><table><tr><td style="text-align: center;"><img src="legend/Cuenca_Alta_Rio_Bogota_4_000000370.png" /></td><td>0 - 0.000037</td></tr><tr><td style="text-align: center;"><img src="legend/Cuenca_Alta_Rio_Bogota_4_000003700001561.png" /></td><td>0.000037 - 0.000156</td></tr><tr><td style="text-align: center;"><img src="legend/Cuenca_Alta_Rio_Bogota_4_000015600004812.png" /></td><td>0.000156 - 0.000481</td></tr><tr><td style="text-align: center;"><img src="legend/Cuenca_Alta_Rio_Bogota_4_000048100020393.png" /></td><td>0.000481 - 0.002039</td></tr><tr><td style="text-align: center;"><img src="legend/Cuenca_Alta_Rio_Bogota_4_000203900209434.png" /></td><td>0.002039 - 0.020943</td></tr></table>', layer: layer_Cuenca_Alta_Rio_Bogota_4},
+            {label: 'Adaptacion_Cambio_Climatico<br /><table><tr><td style="text-align: center;"><img src="legend/Adaptacion_Cambio_Climatico_3_Bancoatrapaniebla0.png" /></td><td>Banco atrapaniebla</td></tr><tr><td style="text-align: center;"><img src="legend/Adaptacion_Cambio_Climatico_3_Ecohuerta1.png" /></td><td>Ecohuerta</td></tr><tr><td style="text-align: center;"><img src="legend/Adaptacion_Cambio_Climatico_3_Huertaurbanaagroecológica2.png" /></td><td>Huerta urbana agroecológica</td></tr><tr><td style="text-align: center;"><img src="legend/Adaptacion_Cambio_Climatico_3_Limnímetro3.png" /></td><td>Limnímetro</td></tr><tr><td style="text-align: center;"><img src="legend/Adaptacion_Cambio_Climatico_3_Microtúnelagrícola4.png" /></td><td>Micro-túnel agrícola</td></tr><tr><td style="text-align: center;"><img src="legend/Adaptacion_Cambio_Climatico_3_Pluviómetro5.png" /></td><td>Pluviómetro</td></tr><tr><td style="text-align: center;"><img src="legend/Adaptacion_Cambio_Climatico_3_6.png" /></td><td></td></tr></table>', layer: layer_Adaptacion_Cambio_Climatico_3},
+            {label: '<img src="legend/2da_linea_metro_2.png" /> 2da_linea_metro', layer: layer_2da_linea_metro_2},
+            {label: '<img src="legend/1ra_linea_metro_1.png" /> 1ra_linea_metro', layer: layer_1ra_linea_metro_1},
+            {label: "ESRI Gray (light)", layer: layer_ESRIGraylight_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: false, 
+        });
+        lay.addTo(map);
+		document.addEventListener("DOMContentLoaded", function() {
+            // set new Layers List height which considers toggle icon
+            function newLayersListHeight() {
+                var layerScrollbarElement = document.querySelector('.leaflet-control-layers-scrollbar');
+                if (layerScrollbarElement) {
+                    var layersListElement = document.querySelector('.leaflet-control-layers-list');
+                    var originalHeight = layersListElement.style.height 
+                        || window.getComputedStyle(layersListElement).height;
+                    var newHeight = parseFloat(originalHeight) - 50;
+                    layersListElement.style.height = newHeight + 'px';
+                }
+            }
+            var isLayersListExpanded = true;
+            var controlLayersElement = document.querySelector('.leaflet-control-layers');
+            var toggleLayerControl = document.querySelector('.leaflet-control-layers-toggle');
+            // toggle Collapsed/Expanded and apply new Layers List height
+            toggleLayerControl.addEventListener('click', function() {
+                if (isLayersListExpanded) {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                } else {
+                    controlLayersElement.classList.add('leaflet-control-layers-expanded');
+                }
+                isLayersListExpanded = !isLayersListExpanded;
+                newLayersListHeight()
+            });	
+			// apply new Layers List height if toggle layerstree
+			if (controlLayersElement) {
+				controlLayersElement.addEventListener('click', function(event) {
+					var toggleLayerHeaderPointer = event.target.closest('.leaflet-layerstree-header-pointer span');
+					if (toggleLayerHeaderPointer) {
+						newLayersListHeight();
+					}
+				});
+			}
+            // Collapsed/Expanded at Start to apply new height
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            // Collapsed touch/small screen
+            var isSmallScreen = window.innerWidth < 650;
+            if (isSmallScreen) {
+                setTimeout(function() {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                    isLayersListExpanded = !isLayersListExpanded;
+                }, 500);
+            }  
+        });       
+        map.on("zoomend", function(){
+
+                if (map.hasLayer(layer_Adaptacion_Cambio_Climatico_3)) {
+                    if (map.getZoom() <= 12 && map.getZoom() >= 19) {
+                        layer_Adaptacion_Cambio_Climatico_3.eachLayer(function (layer) {
+                            layer.openTooltip();
+                        });
+                    } else {
+                        layer_Adaptacion_Cambio_Climatico_3.eachLayer(function (layer) {
+                            layer.closeTooltip();
+                        });
+                    }
+                }
+                if (map.hasLayer(layer_Cuenca_Alta_Rio_Bogota_4)) {
+                    if (map.getZoom() <= 12 && map.getZoom() >= 19) {
+                        layer_Cuenca_Alta_Rio_Bogota_4.eachLayer(function (layer) {
+                            layer.openTooltip();
+                        });
+                    } else {
+                        layer_Cuenca_Alta_Rio_Bogota_4.eachLayer(function (layer) {
+                            layer.closeTooltip();
+                        });
+                    }
+                }
+                if (map.hasLayer(layer_Estaciones_1ra_linea_metro_5)) {
+                    if (map.getZoom() <= 12 && map.getZoom() >= 18) {
+                        layer_Estaciones_1ra_linea_metro_5.eachLayer(function (layer) {
+                            layer.openTooltip();
+                        });
+                    } else {
+                        layer_Estaciones_1ra_linea_metro_5.eachLayer(function (layer) {
+                            layer.closeTooltip();
+                        });
+                    }
+                }
+                if (map.hasLayer(layer_Estaciones_2da_linea_metro_6)) {
+                    if (map.getZoom() <= 12 && map.getZoom() >= 18) {
+                        layer_Estaciones_2da_linea_metro_6.eachLayer(function (layer) {
+                            layer.openTooltip();
+                        });
+                    } else {
+                        layer_Estaciones_2da_linea_metro_6.eachLayer(function (layer) {
+                            layer.closeTooltip();
+                        });
+                    }
+                }
+        });
+        setBounds();
+        var i = 0;
+        layer_1ra_linea_metro_1.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['Nombre'] !== null?String('<div style="color: #33a02c; font-size: 10pt; font-family: \'Arial\', sans-serif;">' + layer.feature.properties['Nombre']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_1ra_linea_metro_1'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_2da_linea_metro_2.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['Nombre'] !== null?String('<div style="color: #d7191c; font-size: 10pt; font-family: \'Arial\', sans-serif;">' + layer.feature.properties['Nombre']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_2da_linea_metro_2'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_Adaptacion_Cambio_Climatico_3.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['bnfc'] !== null?String('<div style="color: #000000; font-size: 10pt; font-family: \'Arial\', sans-serif;">' + layer.feature.properties['bnfc']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_Adaptacion_Cambio_Climatico_3'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_Cuenca_Alta_Rio_Bogota_4.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['tipo'] !== null?String('<div style="color: #000000; font-size: 10pt; font-family: \'MS Shell Dlg 2\', sans-serif;">' + layer.feature.properties['tipo']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_Cuenca_Alta_Rio_Bogota_4'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_Estaciones_1ra_linea_metro_5.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['Nombre_com'] !== null?String('<div style="color: #000000; font-size: 10pt; font-family: \'Arial\', sans-serif;">' + layer.feature.properties['Nombre_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_Estaciones_1ra_linea_metro_5'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_Estaciones_2da_linea_metro_6.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['Nombre'] !== null?String('<div style="color: #000000; font-size: 10pt; font-family: \'Arial\', sans-serif;">' + layer.feature.properties['Nombre']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_Estaciones_2da_linea_metro_6'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_limite_intervencion_1ra_linea_metro_7.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['Nombre'] !== null?String('<div style="color: #000000; font-size: 10pt; font-family: \'Arial\', sans-serif;">' + layer.feature.properties['Nombre']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_limite_intervencion_1ra_linea_metro_7'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_Viaducto_1ra_linea_metro_8.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['Nombre'] !== null?String('<div style="color: #000000; font-size: 10pt; font-family: \'Arial\', sans-serif;">' + layer.feature.properties['Nombre']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_Viaducto_1ra_linea_metro_8'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+                if (map.hasLayer(layer_Adaptacion_Cambio_Climatico_3)) {
+                    if (map.getZoom() <= 12 && map.getZoom() >= 19) {
+                        layer_Adaptacion_Cambio_Climatico_3.eachLayer(function (layer) {
+                            layer.openTooltip();
+                        });
+                    } else {
+                        layer_Adaptacion_Cambio_Climatico_3.eachLayer(function (layer) {
+                            layer.closeTooltip();
+                        });
+                    }
+                }
+                if (map.hasLayer(layer_Cuenca_Alta_Rio_Bogota_4)) {
+                    if (map.getZoom() <= 12 && map.getZoom() >= 19) {
+                        layer_Cuenca_Alta_Rio_Bogota_4.eachLayer(function (layer) {
+                            layer.openTooltip();
+                        });
+                    } else {
+                        layer_Cuenca_Alta_Rio_Bogota_4.eachLayer(function (layer) {
+                            layer.closeTooltip();
+                        });
+                    }
+                }
+                if (map.hasLayer(layer_Estaciones_1ra_linea_metro_5)) {
+                    if (map.getZoom() <= 12 && map.getZoom() >= 18) {
+                        layer_Estaciones_1ra_linea_metro_5.eachLayer(function (layer) {
+                            layer.openTooltip();
+                        });
+                    } else {
+                        layer_Estaciones_1ra_linea_metro_5.eachLayer(function (layer) {
+                            layer.closeTooltip();
+                        });
+                    }
+                }
+                if (map.hasLayer(layer_Estaciones_2da_linea_metro_6)) {
+                    if (map.getZoom() <= 12 && map.getZoom() >= 18) {
+                        layer_Estaciones_2da_linea_metro_6.eachLayer(function (layer) {
+                            layer.openTooltip();
+                        });
+                    } else {
+                        layer_Estaciones_2da_linea_metro_6.eachLayer(function (layer) {
+                            layer.closeTooltip();
+                        });
+                    }
+                }
+        resetLabels([layer_1ra_linea_metro_1,layer_2da_linea_metro_2,layer_Adaptacion_Cambio_Climatico_3,layer_Cuenca_Alta_Rio_Bogota_4,layer_Estaciones_1ra_linea_metro_5,layer_Estaciones_2da_linea_metro_6,layer_limite_intervencion_1ra_linea_metro_7,layer_Viaducto_1ra_linea_metro_8]);
+        map.on("zoomend", function(){
+            resetLabels([layer_1ra_linea_metro_1,layer_2da_linea_metro_2,layer_Adaptacion_Cambio_Climatico_3,layer_Cuenca_Alta_Rio_Bogota_4,layer_Estaciones_1ra_linea_metro_5,layer_Estaciones_2da_linea_metro_6,layer_limite_intervencion_1ra_linea_metro_7,layer_Viaducto_1ra_linea_metro_8]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_1ra_linea_metro_1,layer_2da_linea_metro_2,layer_Adaptacion_Cambio_Climatico_3,layer_Cuenca_Alta_Rio_Bogota_4,layer_Estaciones_1ra_linea_metro_5,layer_Estaciones_2da_linea_metro_6,layer_limite_intervencion_1ra_linea_metro_7,layer_Viaducto_1ra_linea_metro_8]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_1ra_linea_metro_1,layer_2da_linea_metro_2,layer_Adaptacion_Cambio_Climatico_3,layer_Cuenca_Alta_Rio_Bogota_4,layer_Estaciones_1ra_linea_metro_5,layer_Estaciones_2da_linea_metro_6,layer_limite_intervencion_1ra_linea_metro_7,layer_Viaducto_1ra_linea_metro_8]);
+        });
+        </script>
+    </body>
+</html>
